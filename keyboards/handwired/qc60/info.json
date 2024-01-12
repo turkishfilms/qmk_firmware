@@ -8,6 +8,12 @@
     "pid": "0x0C60",
     "device_version": "1.0.0"
   },
+  "features": {
+    "bootmagic": true,
+    "extrakey": true,
+    "mousekey": true,
+    "rgblight": true
+  },
   "rgblight": {
     "led_count": 1
   },
@@ -20,6 +26,7 @@
   },
   "diode_direction": "ROW2COL",
   "split": {
+    "enabled": true,
     "soft_serial_pin": "D0"
   },
   "processor": "atmega32u4",
