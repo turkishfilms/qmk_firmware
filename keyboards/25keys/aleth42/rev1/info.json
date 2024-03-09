@@ -2,6 +2,17 @@
     "usb": {
         "device_version": "0.0.1"
     },
+    "features": {
+        "backlight": true,
+        "bootmagic": true,
+        "command": false,
+        "console": true,
+        "encoder": true,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true,
+        "rgblight": true
+    },
     "matrix_pins": {
         "cols": ["D5", "D3", "D2", "D1", "D0", "D6", "D4", "F7", "F0", "F1", "F4"],
         "rows": ["B4", "B0", "B2", "B1"]

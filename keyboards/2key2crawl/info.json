@@ -8,6 +8,15 @@
         "pid": "0x6090",
         "device_version": "0.0.2"
     },
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": true,
+        "encoder": true,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true
+    },
     "matrix_pins": {
         "cols": ["B3", "B4", "B5", "B6", "B7", "C7", "B2"],
         "rows": ["C4", "C5"]

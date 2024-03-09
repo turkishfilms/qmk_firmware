@@ -12,6 +12,15 @@
     "ws2812": {
         "pin": "D7"
     },
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true,
+        "rgblight": true
+    },
     "matrix_pins": {
         "cols": ["C6", "C7", "B7", "B6", "B5", "B2", "D0", "C2"],
         "rows": ["C4", "C5", "B4", "B3", "B1", "B0", "D6", "D5", "D3", "D4", "D1", "D2"]
