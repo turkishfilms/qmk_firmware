@@ -7,47 +7,143 @@
 #define _NAV 2
 #define _MOUSE 3
 
+
+enum custom_keycodes {
+    CTL_TAB=SAFE_RANGE,
+    CSA_H,
+    ALT_F4,
+    CSA_B,
+    GUI_X_I,
+    ALT_SFT_TAB,
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+    case CTL_TAB:
+        if (record->event.pressed) {
+            SEND_STRING(SS_DOWN(X_LCTL) SS_TAP(X_TAB) SS_UP(X_LCTL));
+        }
+        break;
+
+    case ALT_SFT_TAB:
+        if (record->event.pressed) {
+            SEND_STRING(SS_DOWN(X_LALT) SS_DOWN(X_LSFT) SS_TAP(X_TAB) SS_UP(X_LALT) SS_UP(X_LSFT) );
+        } else {
+        }
+        break;
+    case GUI_X_I:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LGUI("x") SS_DELAY(117) "i");
+        } else {
+        }
+        break;
+
+    case CSA_B:
+        if (record->event.pressed) {
+            SEND_STRING(SS_DOWN(X_LCTL) SS_DOWN(X_LSFT) SS_LALT("b") SS_UP(X_LCTL) SS_UP(X_LSFT) );
+        } else {
+        }
+        break;
+
+    case ALT_F4:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LALT("F4"));
+        } else {
+        }
+        break;
+
+    case CSA_H:
+        if (record->event.pressed) {
+            SEND_STRING(SS_DOWN(X_LCTL) SS_DOWN(X_LSFT) SS_LALT("h") SS_UP(X_LCTL) SS_UP(X_LSFT) );
+        } else {
+        }
+        break;
+        }
+    return true;
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*
       * ┌───┬───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┬───┐
-      * │Tab│ Q │ W │ E │ R │ T │       │ Y │ U │ I │ O │ P │Bsp│
-      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
-      * │Ctl│ A │ S │ D │ F │ G │       │ H │ J │ K │ L │ ; │ ' │
-      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
-      * │Sft│ Z │ X │ C │ V │ B │       │ N │ M │ , │ . │ / │Sft│
+      * │   │ QescW │ F │ P │   │       │   │ L │ U │ Ydel: │   │
+      * ├───┼───┼───┼─V─┼─G─┼───┤       ├───┼─K─┼─M─┼───┼───┼───┤
+      * │   │ AtabR │ S │ T │   │       │   │ N │ E │ I │ O │   │
+      * ├───┼───┼───┼───┼─B─┼───┤       ├───┼─J─┼───┼───┼───┼───┤
+      * │   │ ZguiX │ C │ D │   │       │   │ H │ , │ .ent/ │   │
       * └───┴───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┴───┘
       *               ┌───┐                   ┌───┐
-      *               │GUI├───┐           ┌───┤Alt│
-      *               └───┤Bsp├───┐   ┌───┤Ent├───┘
-      *                   └───┤   │   │   ├───┘
+      *               │TAB├───┐           ┌───┤Bsp│
+      *               └───┤NUM├───┐   ┌───┤NAV├───┘
+      *                   └───┤Alt│   │Spc├───┘
       *                       └───┘   └───┘
       */
     [_COLEMAK]=  LAYOUT_split_3x6_3(
-        KC_NO,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_NO,                               KC_NO,    KC_L,    KC_U,    KC_Y,LSFT(KC_SCLN),  KC_NO,
-        KC_NO,  KC_A,    KC_R,CTL_T(KC_S),SFT_T(KC_T),KC_NO,                             KC_NO,    RSFT_T(KC_N),  RCTL_T(KC_E),KC_I,KC_O, KC_NO,
+        KC_NO, KC_Q,     KC_W,    KC_F,    KC_P,    KC_NO,                               KC_NO,    KC_L,    KC_U,    KC_Y,LSFT(KC_SCLN),  KC_NO,
+        KC_NO,  KC_A,    KC_R,CTL_T(KC_S),SFT_T(KC_T),KC_NO,                             KC_NO,    RSFT_T(KC_N),  RCTL_T(KC_E),LALT_T(KC_I),KC_O, KC_NO,
         KC_NO,  KC_Z,    KC_X,    KC_C,    KC_D,    KC_NO,                               KC_NO,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH,  KC_NO,
                                            KC_TAB, MO(_NUMBER), KC_LALT,            KC_SPC,  MO(_NAV),  KC_BSPC
     ),
+     /*
+      * ┌───┬───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┬───┐
+      * │   │F6 │F7 │F9 │F10│   │       │   │F11│F12│F4 │F5 │   │
+      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
+      * │   │ 6 │ 7 │ 9 │ 0 │   │       │   │ 1 │ 2 │ 4 │ 5 │   │
+      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
+      * │   │HOM│END│ ` │ { │   │       │   │ [ │ ~ │ ; │ \ │   │
+      * └───┴───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┴───┘
+      *               ┌───┐                   ┌───┐
+      *               │   ├───┐           ┌───┤ ' │
+      *               └───┤   ├───┐   ┌───┤ = ├───┘
+      *                   └───┤   │   │ - ├───┘
+      *                       └───┘   └───┘
+      */
     [_NUMBER] = LAYOUT_split_3x6_3(
-        KC_NO,  KC_F11,   KC_F12,   KC_F2,   KC_F4,   KC_NO,                               KC_NO,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_NO,
-        KC_NO,  KC_1,     KC_2,     KC_3,    KC_4,MO(_MOUSE),                               KC_NO,   KC_5,    KC_6,    KC_9,    KC_0,     KC_NO,
-        KC_NO,  KC_HOME,    KC_END,    KC_GRAVE,    KC_LBRC,    KC_NO,                  KC_NO,    KC_RBRC,   LSFT(KC_GRAVE), KC_SCLN,  KC_PIPE,    KC_NO,
-                                            KC_NO, KC_NO,KC_NO,          KC_MINUS,  KC_EQUAL,  KC_QUOTE
+        KC_NO,  KC_F11,   KC_F12,   KC_F2,   KC_F4,   KC_NO,                  KC_NO,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_NO,
+        KC_NO,  KC_6,     KC_7,     KC_9,    KC_0,KC_8 ,                 KC_3 ,   KC_1,    KC_2,    KC_4,    KC_5,     KC_NO,
+        KC_NO,  KC_HOME,  KC_END,   KC_GRAVE,LSFT(KC_LBRC), KC_NO,                  KC_NO,   KC_LBRC, LSFT(KC_GRAVE), KC_SCLN,  KC_PIPE,    KC_NO,
+                                    KC_NO,   KC_NO,   KC_NO,                  KC_MINUS,KC_EQUAL,KC_QUOTE
     ),
+     /*
+      * ┌───┬───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┬───┐
+      * │   │M6 │MUT│VLD│VLU│   │       │   │B_B│M3 │B_F│M5 │   │
+      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
+      * │   │   │   │   │   │   │       │   │M1 │UP │M2 │BRT│   │
+      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
+      * │   │   │   │   │   │   │       │   │LFT│DWN│RHT│   │   │
+      * └───┴───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┴───┘
+      *               ┌───┐                   ┌───┐
+      *               │   ├───┐           ┌───┤   │
+      *               └───┤   ├───┐   ┌───┤   ├───┘
+      *                   └───┤   │   │   ├───┘
+      *                       └───┘   └───┘
+      */
     [_NAV] = LAYOUT_split_3x6_3(
-        KC_NO,KC_F11,KC_KB_MUTE,KC_KB_VOLUME_DOWN,KC_KB_VOLUME_UP,KC_NO,                  KC_NO,   KC_WFWD,   KC_F8,   KC_WBAK,   KC_F10,   KC_NO,
-        KC_NO,  KC_A,    KC_S,    KC_D,    KC_F,    KC_NO,                                KC_NO,    KC_J,    KC_UP,    KC_L,    KC_SCLN,    KC_NO,
-        KC_NO,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_NO,                                KC_NO,    KC_LEFT,KC_DOWN, KC_RIGHT,  KC_SLSH,    KC_NO,
-                                             KC_NO, KC_NO, KC_NO,                  KC_NO, KC_NO,KC_NO
+        KC_NO,KC_F11,KC_KB_MUTE,KC_KB_VOLUME_DOWN,KC_KB_VOLUME_UP,KC_NO,                  KC_NO,   KC_WFWD,   ALT_F4,   KC_WBAK, GUI_X_I,   KC_NO,
+        KC_NO,  KC_A,    KC_S,    KC_D,    KC_F,    KC_NO,                                KC_NO, ALT_SFT_TAB,    KC_UP,CTL_TAB,    KC_SCLN,    KC_NO,
+        KC_NO,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_NO,                                KC_NO,    KC_LEFT,KC_DOWN, KC_RIGHT,  CSA_B,    KC_NO,
+                                         KC_NO, KC_NO, KC_NO,                  KC_NO, KC_NO,KC_NO
     ),
+     /*
+      * ┌───┬───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┬───┐
+      * │   │M6 │MUT│V_D│V_U│   │       │   │B_B│M3 │B_F│PRS│   │
+      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
+      * │   │ P │ Q │ W │ E │   │       │   │M1 │MSU│M2 │MWU│   │
+      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
+      * │   │ O │ A │ S │ D │   │       │   │MSL│MSD│MSR│MWD│   │
+      * └───┴───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┴───┘
+      *               ┌───┐                   ┌───┐
+      *               │   ├───┐           ┌───┤MS3│
+      *               └───┤   ├───┐   ┌───┤MS2├───┘
+      *                   └───┤   │   │MS1├───┘
+      *                       └───┘   └───┘
+      */
     [_MOUSE] = LAYOUT_split_3x6_3(
-        KC_NO,  KC_F11,   KC_F12,   KC_F2,   KC_F4,   KC_NO,                               KC_NO,   KC_O,    KC_WFWD,   KC_F8,   KC_WBAK,   KC_NO,
+        KC_NO,  KC_F11,   KC_F12,   KC_F2,   KC_F4,   KC_NO,                               KC_NO,   KC_WFWD,   ALT_F4,   KC_WBAK, GUI_X_I,   KC_NO,
         KC_NO,  KC_A,    KC_S,    KC_D,    KC_F,    KC_NO,                                KC_NO,    KC_J,    KC_MS_UP,    KC_L,    KC_WH_U,    KC_NO,
-        KC_NO,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_NO,                                KC_NO,    KC_MS_LEFT,  KC_MS_DOWN, KC_MS_RIGHT,  KC_WH_D,    KC_NO,
+        KC_NO,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_NO,                            KC_NO,    KC_MS_LEFT,  KC_MS_DOWN, KC_MS_RIGHT,  KC_WH_D,    KC_NO,
                                            KC_NO,   KC_NO, KC_NO,            KC_MS_BTN1,  KC_MS_BTN2,  KC_MS_BTN3
     )
 };
-
 
 const uint16_t PROGMEM _MS23_NOMS[] = {KC_MS_BTN2 ,KC_MS_BTN3, COMBO_END};
 const uint16_t PROGMEM _YSCLN_DEL[] = {KC_Y ,LSFT(KC_SCLN), COMBO_END};
