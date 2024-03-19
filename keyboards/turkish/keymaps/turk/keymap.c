@@ -7,7 +7,6 @@
 #define _NAV 2
 #define _MOUSE 3
 
-
 enum custom_keycodes {
     CTL_TAB=SAFE_RANGE,
     CSA_H,
@@ -15,10 +14,67 @@ enum custom_keycodes {
     CSA_B,
     GUI_X_I,
     ALT_SFT_TAB,
+    TD_AB,
+    TD_CP,
+    CT_CLN,
 };
 
+typedef struct {
+    uint16_t tap;
+    uint16_t hold;
+    uint16_t held;
+} tap_dance_tap_hold_t;
+
+ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
+     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+     if (state->pressed) {
+         if (state->count == 1
+ #ifndef PERMISSIVE_HOLD
+             && !state->interrupted
+ #endif
+         ) {
+             register_code16(tap_hold->hold);
+             tap_hold->held = tap_hold->hold;
+         } else {
+             register_code16(tap_hold->tap);
+             tap_hold->held = tap_hold->tap;
+         }
+     }
+ }
+
+ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
+     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+     if (tap_hold->held) {
+         unregister_code16(tap_hold->held);
+         tap_hold->held = 0;
+     }
+ }
+
+ #define ACTION_TAP_DANCE_TAP_HOLD(tap, hold)\
+     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+
+ // Tap Dance definitions
+ tap_dance_action_t tap_dance_actions[] = {
+     [CT_CLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_COLN, KC_SCLN),
+     [TD_AB] = ACTION_TAP_DANCE_DOUBLE(KC_A,KC_B),
+     [TD_CP] = ACTION_TAP_DANCE_DOUBLE(KC_C, KC_P),
+ };
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+ tap_dance_action_t *action;
+
     switch (keycode) {
+
+        case TD(TD_AB):  // list all tap dance keycodes with tap-hold configurations
+            action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
+            if (!record->event.pressed && action->state.count && !action->state.finished) {
+                tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+                tap_code16(tap_hold->tap);
+            }
+        break;
+
     case CTL_TAB:
         if (record->event.pressed) {
             SEND_STRING(SS_DOWN(X_LCTL) SS_TAP(X_TAB) SS_UP(X_LCTL));
@@ -31,6 +87,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else {
         }
         break;
+
     case GUI_X_I:
         if (record->event.pressed) {
             SEND_STRING(SS_LGUI("x") SS_DELAY(117) "i");
@@ -79,8 +136,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       */
     [_COLEMAK]=  LAYOUT_split_3x6_3(
         KC_NO, KC_Q,     KC_W,    KC_F,    KC_P,    KC_NO,                               KC_NO,    KC_L,    KC_U,    KC_Y,LSFT(KC_SCLN),  KC_NO,
-        KC_NO,  KC_A,    KC_R,CTL_T(KC_S),SFT_T(KC_T),KC_NO,                             KC_NO,    RSFT_T(KC_N),  RCTL_T(KC_E),LALT_T(KC_I),KC_O, KC_NO,
-        KC_NO,  KC_Z,    KC_X,    KC_C,    KC_D,    KC_NO,                               KC_NO,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH,  KC_NO,
+        KC_NO,  KC_A,    KC_R,CTL_T(KC_S),SFT_T(KC_T),TD(TD_AB),                             KC_NO,    RSFT_T(KC_N),  RCTL_T(KC_E),LALT_T(KC_I),KC_O, KC_NO,
+        KC_NO,  KC_Z,    KC_X,    KC_C,    KC_D,   KC_A,                               KC_NO,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH,  KC_NO,
                                            KC_TAB, MO(_NUMBER), KC_LALT,            KC_SPC,  MO(_NAV),  KC_BSPC
     ),
      /*
@@ -118,7 +175,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       *                       └───┘   └───┘
       */
     [_NAV] = LAYOUT_split_3x6_3(
-        KC_NO,KC_F11,KC_KB_MUTE,KC_KB_VOLUME_DOWN,KC_KB_VOLUME_UP,KC_NO,                  KC_NO,   KC_WFWD,   ALT_F4,   KC_WBAK, GUI_X_I,   KC_NO,
+        KC_NO,KC_F11,KC_KB_MUTE,KC_KB_VOLUME_DOWN,KC_KB_VOLUME_UP,KC_NO,                  KC_NO,   KC_WFWD,   ALT_F4,   KC_WWW_BACK,KC_W,   KC_NO,
         KC_NO,  KC_A,    KC_S,    KC_D,    KC_F,    KC_NO,                                KC_NO, ALT_SFT_TAB,    KC_UP,CTL_TAB,    KC_SCLN,    KC_NO,
         KC_NO,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_NO,                                KC_NO,    KC_LEFT,KC_DOWN, KC_RIGHT,  CSA_B,    KC_NO,
                                          KC_NO, KC_NO, KC_NO,                  KC_NO, KC_NO,KC_NO
@@ -145,6 +202,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
+//make this an array of objects
 const uint16_t PROGMEM _MS23_NOMS[] = {KC_MS_BTN2 ,KC_MS_BTN3, COMBO_END};
 const uint16_t PROGMEM _YSCLN_DEL[] = {KC_Y ,LSFT(KC_SCLN), COMBO_END};
 const uint16_t PROGMEM _DOTSLSH_ENTER[] = {KC_DOT ,KC_SLSH, COMBO_END};
@@ -158,7 +216,9 @@ const uint16_t PROGMEM _FS_V[] = {KC_F ,CTL_T(KC_S), COMBO_END};
 const uint16_t PROGMEM _AR_TAB[] ={KC_A ,KC_R, COMBO_END};
 const uint16_t PROGMEM _QW_ESC[] = {KC_Q, KC_W, COMBO_END};
 const uint16_t PROGMEM _ZX_GUI[] = {KC_Z, KC_X, COMBO_END};
+
 combo_t key_combos[] = {
+//make a for loop for objects
     COMBO(_MS23_NOMS, TO(_COLEMAK)),
     COMBO(_YSCLN_DEL, KC_DEL),
     COMBO(_DOTSLSH_ENTER, KC_ENTER),
@@ -173,8 +233,6 @@ combo_t key_combos[] = {
     COMBO(_QW_ESC, KC_ESC),
     COMBO(_ZX_GUI, KC_LGUI), // keycodes with modifiers are possible too!
 };
-
-
 
 
 
